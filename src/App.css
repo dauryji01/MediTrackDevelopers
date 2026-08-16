@@ -182,3 +182,61 @@
     border-right-color: var(--border);
   }
 }
+
+:root {
+  --blue: #2563eb;
+  --green: #10b981;
+  --bg: #f7fafc;
+  --muted: #6b7280;
+  --white: #ffffff;
+}
+
+* { box-sizing: border-box; font-family: Inter, system-ui, Arial; }
+
+body, #root { height: 100%; margin: 0; background: var(--bg); color: #0f172a; }
+
+.layout { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 220px; background: var(--white); border-right: 1px solid #e6edf3;
+  padding: 20px;
+}
+.brand { font-weight: 700; font-size: 20px; color: var(--blue); margin-bottom: 16px; }
+
+.sidebar nav ul { list-style: none; padding: 0; margin: 0; }
+.sidebar li { margin: 8px 0; }
+.sidebar button {
+  width: 100%; text-align: left; background: transparent; border: none; padding: 8px 6px; cursor: pointer;
+  color: #0f172a; border-radius: 6px;
+}
+.sidebar button:hover { background: #f1f5f9; }
+
+.main { flex: 1; display: flex; flex-direction: column; }
+
+.topbar {
+  height: 64px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; background: linear-gradient(0deg, rgba(255,255,255,0.6), rgba(255,255,255,0.6));
+  border-bottom: 1px solid #e6edf3;
+}
+.search input {
+  padding: 8px 12px; border-radius: 8px; border: 1px solid #e2e8f0; width: 320px;
+}
+.top-actions { display: flex; align-items: center; gap: 12px; }
+.icon-btn { background: transparent; border: none; cursor: pointer; font-size: 18px; }
+
+.content { padding: 24px; }
+
+.cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 20px; }
+.card { background: var(--white); padding: 16px; border-radius: 8px; box-shadow: 0 1px 2px rgba(15,23,42,0.04); }
+.card .big { font-size: 20px; font-weight: 700; margin-top: 8px; color: var(--blue); }
+
+.actions { display: flex; gap: 12px; margin-bottom: 20px; }
+.actions .primary { background: var(--green); color: white; border: none; padding: 12px 18px; border-radius: 8px; cursor: pointer; }
+.actions button { padding: 12px 18px; border-radius: 8px; border: 1px solid #e6edf3; background: white; cursor: pointer; }
+
+.alerts-and-sales { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.alerts, .last-sales { background: var(--white); padding: 16px; border-radius: 8px; }
+.alerts ul { margin: 0; padding-left: 16px; color: var(--muted); }
+.last-sales table { width: 100%; border-collapse: collapse; }
+.last-sales th, .last-sales td { text-align: left; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+
