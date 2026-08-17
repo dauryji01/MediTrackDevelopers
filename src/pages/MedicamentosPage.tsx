@@ -3,9 +3,12 @@ import type { FormEvent } from 'react';
 
 import {
   AlertTriangle,
+  CheckCircle2,
   PackagePlus,
+  Pencil,
   Pill,
   Search,
+  Trash2,
   X,
 } from 'lucide-react';
 
@@ -19,6 +22,16 @@ interface Medicamento {
   precio: number;
   stock: number;
   stockMinimo: number;
+  vencimiento: string;
+}
+
+interface MedicineForm {
+  nombre: string;
+  principioActivo: string;
+  categoria: string;
+  precio: string;
+  stock: string;
+  stockMinimo: string;
   vencimiento: string;
 }
 
@@ -65,7 +78,7 @@ const initialMedicamentos: Medicamento[] = [
   },
 ];
 
-const emptyForm = {
+const emptyForm: MedicineForm = {
   nombre: '',
   principioActivo: '',
   categoria: 'Analgésicos',
@@ -82,7 +95,9 @@ function MedicamentosPage() {
   const [search, setSearch] = useState('');
   const [categoria, setCategoria] = useState('Todas');
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState(emptyForm);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [form, setForm] = useState<MedicineForm>(emptyForm);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const medicamentosFiltrados = useMemo(() => {
     const text = search.toLowerCase().trim();
@@ -99,23 +114,105 @@ function MedicamentosPage() {
     });
   }, [medicamentos, search, categoria]);
 
+  const totalUnidades = medicamentos.reduce(
+    (total, medicamento) => total + medicamento.stock,
+    0,
+  );
+
+  const totalStockBajo = medicamentos.filter(
+    (medicamento) => medicamento.stock <= medicamento.stockMinimo,
+  ).length;
+
+  const openAddForm = () => {
+    setEditingId(null);
+    setForm(emptyForm);
+    setShowForm(true);
+  };
+
+  const openEditForm = (medicamento: Medicamento) => {
+    setEditingId(medicamento.id);
+
+    setForm({
+      nombre: medicamento.nombre,
+      principioActivo: medicamento.principioActivo,
+      categoria: medicamento.categoria,
+      precio: String(medicamento.precio),
+      stock: String(medicamento.stock),
+      stockMinimo: String(medicamento.stockMinimo),
+      vencimiento: medicamento.vencimiento,
+    });
+
+    setShowForm(true);
+  };
+
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setForm(emptyForm);
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const nuevoMedicamento: Medicamento = {
-      id: Date.now(),
-      nombre: form.nombre,
-      principioActivo: form.principioActivo,
-      categoria: form.categoria,
-      precio: Number(form.precio),
-      stock: Number(form.stock),
-      stockMinimo: Number(form.stockMinimo),
-      vencimiento: form.vencimiento,
-    };
+    if (editingId !== null) {
+      setMedicamentos((currentMedicamentos) =>
+        currentMedicamentos.map((medicamento) =>
+          medicamento.id === editingId
+            ? {
+                ...medicamento,
+                nombre: form.nombre,
+                principioActivo: form.principioActivo,
+                categoria: form.categoria,
+                precio: Number(form.precio),
+                stock: Number(form.stock),
+                stockMinimo: Number(form.stockMinimo),
+                vencimiento: form.vencimiento,
+              }
+            : medicamento,
+        ),
+      );
 
-    setMedicamentos((current) => [nuevoMedicamento, ...current]);
-    setForm(emptyForm);
-    setShowForm(false);
+      setSuccessMessage('Medicamento actualizado correctamente.');
+    } else {
+      const nuevoMedicamento: Medicamento = {
+        id: Date.now(),
+        nombre: form.nombre,
+        principioActivo: form.principioActivo,
+        categoria: form.categoria,
+        precio: Number(form.precio),
+        stock: Number(form.stock),
+        stockMinimo: Number(form.stockMinimo),
+        vencimiento: form.vencimiento,
+      };
+
+      setMedicamentos((currentMedicamentos) => [
+        nuevoMedicamento,
+        ...currentMedicamentos,
+      ]);
+
+      setSuccessMessage('Medicamento agregado correctamente.');
+    }
+
+    closeForm();
+  };
+
+  const handleDelete = (medicamento: Medicamento) => {
+    const confirmed = window.confirm(
+      `¿Seguro que deseas eliminar "${medicamento.nombre}"?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setMedicamentos((currentMedicamentos) =>
+      currentMedicamentos.filter(
+        (currentMedicamento) =>
+          currentMedicamento.id !== medicamento.id,
+      ),
+    );
+
+    setSuccessMessage('Medicamento eliminado correctamente.');
   };
 
   return (
@@ -124,6 +221,7 @@ function MedicamentosPage() {
         <div>
           <p className="eyebrow">GESTIÓN DE MEDICAMENTOS</p>
           <h2>Medicamentos</h2>
+
           <span>
             Consulta y administra los medicamentos registrados.
           </span>
@@ -132,12 +230,28 @@ function MedicamentosPage() {
         <button
           type="button"
           className="add-medicine-button"
-          onClick={() => setShowForm(true)}
+          onClick={openAddForm}
         >
           <PackagePlus size={20} />
           Agregar medicamento
         </button>
       </div>
+
+      {successMessage && (
+        <div className="medicine-success-message">
+          <CheckCircle2 size={20} />
+
+          <span>{successMessage}</span>
+
+          <button
+            type="button"
+            onClick={() => setSuccessMessage('')}
+            aria-label="Cerrar mensaje"
+          >
+            <X size={18} />
+          </button>
+        </div>
+      )}
 
       <div className="medicine-summary">
         <article>
@@ -158,12 +272,7 @@ function MedicamentosPage() {
 
           <div>
             <span>Unidades disponibles</span>
-            <strong>
-              {medicamentos.reduce(
-                (total, medicamento) => total + medicamento.stock,
-                0,
-              )}
-            </strong>
+            <strong>{totalUnidades}</strong>
           </div>
         </article>
 
@@ -174,14 +283,7 @@ function MedicamentosPage() {
 
           <div>
             <span>Con stock bajo</span>
-            <strong>
-              {
-                medicamentos.filter(
-                  (medicamento) =>
-                    medicamento.stock <= medicamento.stockMinimo,
-                ).length
-              }
-            </strong>
+            <strong>{totalStockBajo}</strong>
           </div>
         </article>
       </div>
@@ -221,6 +323,7 @@ function MedicamentosPage() {
                 <th>Stock</th>
                 <th>Vencimiento</th>
                 <th>Estado</th>
+                <th>Acciones</th>
               </tr>
             </thead>
 
@@ -263,6 +366,30 @@ function MedicamentosPage() {
                         {stockBajo ? 'Stock bajo' : 'Disponible'}
                       </span>
                     </td>
+
+                    <td>
+                      <div className="medicine-actions">
+                        <button
+                          type="button"
+                          className="edit-medicine"
+                          onClick={() => openEditForm(medicamento)}
+                          aria-label={`Editar ${medicamento.nombre}`}
+                          title="Editar medicamento"
+                        >
+                          <Pencil size={17} />
+                        </button>
+
+                        <button
+                          type="button"
+                          className="delete-medicine"
+                          onClick={() => handleDelete(medicamento)}
+                          aria-label={`Eliminar ${medicamento.nombre}`}
+                          title="Eliminar medicamento"
+                        >
+                          <Trash2 size={17} />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 );
               })}
@@ -282,14 +409,23 @@ function MedicamentosPage() {
           <div className="medicine-modal">
             <div className="modal-header">
               <div>
-                <h3>Agregar medicamento</h3>
-                <p>Completa los datos básicos del medicamento.</p>
+                <h3>
+                  {editingId !== null
+                    ? 'Editar medicamento'
+                    : 'Agregar medicamento'}
+                </h3>
+
+                <p>
+                  {editingId !== null
+                    ? 'Modifica los datos del medicamento seleccionado.'
+                    : 'Completa los datos básicos del medicamento.'}
+                </p>
               </div>
 
               <button
                 type="button"
                 className="close-modal"
-                onClick={() => setShowForm(false)}
+                onClick={closeForm}
                 aria-label="Cerrar formulario"
               >
                 <X size={21} />
@@ -300,19 +436,24 @@ function MedicamentosPage() {
               <div className="form-grid">
                 <label>
                   Nombre comercial
+
                   <input
                     required
                     type="text"
                     value={form.nombre}
                     placeholder="Ej. Ibuprofeno 400 mg"
                     onChange={(event) =>
-                      setForm({ ...form, nombre: event.target.value })
+                      setForm({
+                        ...form,
+                        nombre: event.target.value,
+                      })
                     }
                   />
                 </label>
 
                 <label>
                   Principio activo
+
                   <input
                     required
                     type="text"
@@ -329,21 +470,37 @@ function MedicamentosPage() {
 
                 <label>
                   Categoría
+
                   <select
                     value={form.categoria}
                     onChange={(event) =>
-                      setForm({ ...form, categoria: event.target.value })
+                      setForm({
+                        ...form,
+                        categoria: event.target.value,
+                      })
                     }
                   >
-                    <option>Analgésicos</option>
-                    <option>Antibióticos</option>
-                    <option>Vitaminas</option>
-                    <option>Antialérgicos</option>
+                    <option value="Analgésicos">
+                      Analgésicos
+                    </option>
+
+                    <option value="Antibióticos">
+                      Antibióticos
+                    </option>
+
+                    <option value="Vitaminas">
+                      Vitaminas
+                    </option>
+
+                    <option value="Antialérgicos">
+                      Antialérgicos
+                    </option>
                   </select>
                 </label>
 
                 <label>
                   Precio
+
                   <input
                     required
                     min="0"
@@ -352,13 +509,17 @@ function MedicamentosPage() {
                     value={form.precio}
                     placeholder="0.00"
                     onChange={(event) =>
-                      setForm({ ...form, precio: event.target.value })
+                      setForm({
+                        ...form,
+                        precio: event.target.value,
+                      })
                     }
                   />
                 </label>
 
                 <label>
                   Cantidad disponible
+
                   <input
                     required
                     min="0"
@@ -366,13 +527,17 @@ function MedicamentosPage() {
                     value={form.stock}
                     placeholder="0"
                     onChange={(event) =>
-                      setForm({ ...form, stock: event.target.value })
+                      setForm({
+                        ...form,
+                        stock: event.target.value,
+                      })
                     }
                   />
                 </label>
 
                 <label>
                   Stock mínimo
+
                   <input
                     required
                     min="0"
@@ -390,6 +555,7 @@ function MedicamentosPage() {
 
                 <label className="full-field">
                   Fecha de vencimiento
+
                   <input
                     required
                     type="date"
@@ -408,13 +574,15 @@ function MedicamentosPage() {
                 <button
                   type="button"
                   className="cancel-button"
-                  onClick={() => setShowForm(false)}
+                  onClick={closeForm}
                 >
                   Cancelar
                 </button>
 
                 <button type="submit" className="save-button">
-                  Guardar medicamento
+                  {editingId !== null
+                    ? 'Guardar cambios'
+                    : 'Guardar medicamento'}
                 </button>
               </div>
             </form>

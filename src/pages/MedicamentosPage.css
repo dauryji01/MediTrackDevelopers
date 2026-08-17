@@ -342,4 +342,71 @@
   .full-field {
     grid-column: auto;
   }
+
+  .medicine-success-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 13px 15px;
+  border: 1px solid #b9ead7;
+  border-radius: 10px;
+  background: #e8f8f2;
+  color: #117a59;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.medicine-success-message span {
+  flex: 1;
+}
+
+.medicine-success-message button {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #117a59;
+}
+
+.medicine-success-message button:hover {
+  background: #d2f1e5;
+}
+
+.medicine-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.medicine-actions button {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+}
+
+.edit-medicine {
+  border: 1px solid #bfd8f4;
+  background: #eaf4ff;
+  color: var(--primary-blue);
+}
+
+.edit-medicine:hover {
+  background: #d7eaff;
+}
+
+.delete-medicine {
+  border: 1px solid #f5c8c8;
+  background: #fff0f0;
+  color: #d94343;
+}
+
+.delete-medicine:hover {
+  background: #ffe0e0;
+}
 }
