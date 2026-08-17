@@ -1,7 +1,7 @@
 import React from 'react'
 import Sidebar from '../components/Sidebar'
 import Header from '../components/Header'
-import { stats, alerts, lastSales } from '../data/mock'
+import { stats, alerts, lastSales } from '../data/mockData'
 
 const Dashboard: React.FC = () => {
   return (

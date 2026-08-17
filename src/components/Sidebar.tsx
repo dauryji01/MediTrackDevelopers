@@ -1,30 +1,65 @@
-import React from 'react'
+import {
+  Boxes,
+  ClipboardList,
+  FileBarChart,
+  Home,
+  PackageSearch,
+  Pill,
+  ShoppingCart,
+  Users,
+} from 'lucide-react';
 
-const Sidebar: React.FC = () => {
-  const items = [
-    'Inicio',
-    'Medicamentos',
-    'Inventario',
-    'Ventas',
-    'Clientes',
-    'Solicitudes',
-    'Reportes',
-  ]
-
-  return (
-    <aside className="sidebar">
-      <div className="brand">MediTrack</div>
-      <nav>
-        <ul>
-          {items.map((it) => (
-            <li key={it}>
-              <button onClick={() => alert('Próximamente: ' + it)}>{it}</button>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </aside>
-  )
+interface SidebarProps {
+  activeItem: string;
+  onSelectItem: (item: string) => void;
 }
 
-export default Sidebar
+const menuItems = [
+  { name: 'Inicio', icon: Home },
+  { name: 'Medicamentos', icon: Pill },
+  { name: 'Inventario', icon: Boxes },
+  { name: 'Ventas', icon: ShoppingCart },
+  { name: 'Clientes', icon: Users },
+  { name: 'Solicitudes', icon: ClipboardList },
+  { name: 'Reportes', icon: FileBarChart },
+];
+
+function Sidebar({ activeItem, onSelectItem }: SidebarProps) {
+  return (
+    <aside className="sidebar">
+      <div className="sidebar-logo">
+        <div className="logo-icon">
+          <PackageSearch size={26} />
+        </div>
+
+        <div>
+          <h1>MediTrack</h1>
+          <span>Gestión farmacéutica</span>
+        </div>
+      </div>
+
+      <nav className="sidebar-menu">
+        <p className="menu-title">MENÚ PRINCIPAL</p>
+
+        {menuItems.map(({ name, icon: Icon }) => (
+          <button
+            key={name}
+            type="button"
+            className={`menu-item ${activeItem === name ? 'active' : ''}`}
+            onClick={() => onSelectItem(name)}
+          >
+            <Icon size={20} />
+            <span>{name}</span>
+          </button>
+        ))}
+      </nav>
+
+      <div className="sidebar-footer">
+        <p>Sistema MediTrack</p>
+        <span>Versión inicial 1.0</span>
+      </div>
+    </aside>
+  );
+}
+
+export default Sidebar;
