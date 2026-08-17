@@ -18,7 +18,10 @@ import InventarioPage from './pages/InventarioPage';
 import MedicamentosPage from './pages/MedicamentosPage';
 import VentasPage from './pages/VentasPage';
 
-import { alerts, recentSales } from './data/mockData';
+import {
+  alerts,
+  recentSales,
+} from './data/mockData';
 
 import './App.css';
 
@@ -75,7 +78,7 @@ function App() {
           <div>
             <p className="eyebrow">PANEL PRINCIPAL</p>
 
-            <h2>Buenos días, Joel</h2>
+            <h2>Buenos días</h2>
 
             <span>
               Aquí tienes un resumen de la actividad de la farmacia.
@@ -241,7 +244,6 @@ function App() {
 
                   <div>
                     <strong>{alert.title}</strong>
-
                     <p>{alert.description}</p>
                   </div>
                 </div>
